@@ -6,13 +6,20 @@ import { auth, db } from "../../firebase";
 import getRecipientEmail from "../../utils/getRecipientEmail";
 function Chat({ messages, chat }) {
   const [user] = useAuthState(auth);
+  console.log(chat);
   return (
     <div className="flex">
       <Head>
         <title>Chat with {getRecipientEmail(chat.users, user)}</title>
       </Head>
       <Sidebar />
-      <ChatScreen chat={chat} messages={messages} />
+      {chat?.users ? (
+        <ChatScreen chat={chat} messages={messages} />
+      ) : (
+        <div className="flex flex-col items-center w-screen">
+          <h2 className="my-auto font-bold text-3xl">Add/Select a friend</h2>
+        </div>
+      )}
     </div>
   );
 }
@@ -20,7 +27,7 @@ function Chat({ messages, chat }) {
 export default Chat;
 
 export async function getServerSideProps(context) {
-  const ref = db.collection("chats").doc(context.query.chatId);
+  const ref = db.collection("chats").doc(context.query.chatId?.[0]);
   const messagesRes = await ref.collection("messages").orderBy("timestamp", "asc").get();
   const messages = messagesRes.docs
     .map((doc) => ({ id: doc.id, ...doc.data() }))

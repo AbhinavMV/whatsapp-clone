@@ -1,9 +1,12 @@
 import Head from "next/head";
-import Image from "next/image";
+import { useRouter } from "next/router";
 import { auth, provider } from "../firebase";
+
 function Login() {
+  const router = useRouter();
   const signIn = () => {
     auth.signInWithPopup(provider).catch(alert);
+    router.push("/chat", undefined, { shallow: true });
   };
 
   return (

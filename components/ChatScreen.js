@@ -1,6 +1,6 @@
 import firebase from "firebase";
 import { useRouter } from "next/dist/client/router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useCollection } from "react-firebase-hooks/firestore";
 import TimeAgo from "timeago-react";
@@ -13,13 +13,17 @@ function ChatScreen({ messages, chat }) {
   const router = useRouter();
   const [input, setInput] = useState("");
   const endOfMessagesRef = useRef();
+
   const [messagesSnapshot] = useCollection(
     db
       .collection("chats")
-      .doc(router.query.chatId)
+      .doc(router.query.chatId[0])
       .collection("messages")
       .orderBy("timestamp", "asc")
   );
+  useEffect(() => {
+    scrollToBottom();
+  }, [messagesSnapshot]);
   const recipientEmail = getRecipientEmail(chat.users, user);
   const [recipientSnapshot] = useCollection(
     db.collection("users").where("email", "==", recipientEmail)
@@ -42,11 +46,12 @@ function ChatScreen({ messages, chat }) {
     }
   };
 
-  const scrollToBottom = () =>
+  const scrollToBottom = () => {
     endOfMessagesRef.current?.scrollIntoView({
       behavior: "smooth",
       block: "start",
     });
+  };
   const sendMessage = (e) => {
     e.preventDefault();
     if (input === "") return;
@@ -56,14 +61,13 @@ function ChatScreen({ messages, chat }) {
       },
       { merge: true }
     );
-    db.collection("chats").doc(router.query.chatId).collection("messages").add({
+    db.collection("chats").doc(router.query.chatId[0]).collection("messages").add({
       timestamp: firebase.firestore.FieldValue.serverTimestamp(),
       message: input,
       user: user.email,
       photoURL: user.photoURL,
     });
     setInput("");
-    scrollToBottom();
   };
 
   return (
@@ -127,11 +131,12 @@ function ChatScreen({ messages, chat }) {
         </div>
       </div>
       <div
+        id="msgContainer"
         className="flex flex-col overflow-y-scroll scrollbar-hide"
         style={{ minHeight: "80vh", backgroundColor: "#e5ded8" }}
       >
         {showMessages()}
-        <div className="mb-2" id="endOfMessages" ref={endOfMessagesRef} />
+        <div className="mb-1" id="endOfMessages" ref={endOfMessagesRef} />
       </div>
       <form className="flex items-center w-full p-2 mt-2 bg-white" onSubmit={sendMessage}>
         <svg

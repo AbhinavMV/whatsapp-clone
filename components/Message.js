@@ -8,9 +8,10 @@ function Message({ user, message }) {
   return (
     <div className="flex flex-col">
       <p
-        className={`flex flex-col w-auto p-4 rounded-md m-1 min-w-min relative text-right ${
+        className={`flex flex-col w-auto p-4 rounded-md m-1 relative text-right ${
           sender ? "ml-auto bg-green-200" : "text-left bg-gray-50 mr-auto"
         }`}
+        style={{ minWidth: "4rem" }}
       >
         {message.message}
         <span

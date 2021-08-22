@@ -1,10 +1,17 @@
+import { useRouter } from "next/router";
 import { auth } from "../../firebase";
 function Header({ image }) {
+  const router = useRouter();
+  const signOut = () => {
+    router.push("/login", undefined, { shallow: true });
+    auth.signOut();
+  };
+
   return (
     <div className="flex justify-between sticky top-0 z-10 items-center p-2 h-12 border-b-1 bg-gray-50">
       {/* avatar */}
       <img
-        onClick={() => auth.signOut()}
+        onClick={signOut}
         className="rounded-full mr-5 h-10 w-10 cursor-pointer"
         src={image ? image : "/default.png"}
         alt="header"
@@ -13,7 +20,7 @@ function Header({ image }) {
         {/* message */}
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-8 w-8 text-gray-500"
+          className="h-6 w-6 text-gray-500"
           viewBox="0 0 20 20"
           fill="currentColor"
         >
@@ -26,7 +33,7 @@ function Header({ image }) {
         {/* dots vertical */}
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          className="h-8 w-8 text-gray-500"
+          className="h-6 w-6 text-gray-500"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
